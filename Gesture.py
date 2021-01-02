@@ -35,7 +35,6 @@ def dataGen(path, imagecount):
         hsv = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV)
 
 
-
         # define range of skin color in HSV
         lower_skin = np.array([0,20,70], dtype=np.uint8)
         upper_skin = np.array([20,255,255], dtype=np.uint8)
@@ -43,6 +42,9 @@ def dataGen(path, imagecount):
         #extract skin colur image
         mask = cv2.inRange(hsv, lower_skin, upper_skin)
 
+        #erosions and dilations to make image clearer
+        eroded=cv2.erode(mask,kernel,iterations=1)
+        dilated=cv2.erode(eroded,kernel,iterations=3)
 
 
         #extrapolate the hand to fill dark spots within
@@ -53,6 +55,10 @@ def dataGen(path, imagecount):
         path = directory+"//"+str(filename)+".jpg"
         cv2.imwrite(path, mask)
         cv2.imshow("Capturing", mask)
+        #thresholding
+        ret,thresh = cv2.threshold(mask, 127, 255, 0)
+        cv2.imshow("thresholded", thresh)
+        
         key=cv2.waitKey(1)
         if key == ord('q'):
             break
